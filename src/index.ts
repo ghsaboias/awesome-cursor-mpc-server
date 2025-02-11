@@ -40,6 +40,14 @@ import {
   runMermaidStructureTool
 } from "./tools/mermaidStructure.js";
 
+import {
+  condensateToolDescription,
+  condensateToolName,
+  CondensateToolSchema,
+  runCondensateTool,
+} from "./tools/condensate.js";
+
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -83,6 +91,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description:
                 "Path to where the screenshot file should be saved. This should be a cwd-style full path to the file (not relative to the current working directory) including the file name and extension.",
+            },
+            width: {
+              type: "number",
+              description: "Viewport width in pixels (default: 1920)",
+            },
+            height: {
+              type: "number",
+              description: "Viewport height in pixels (default: 1080)",
+            },
+            deviceScaleFactor: {
+              type: "number",
+              description: "Device scale factor for the viewport (default: 1)",
             },
           },
           required: [],
@@ -175,6 +195,27 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["fullPathToOutput"],
         },
       },
+      {
+        name: condensateToolName,
+        description: condensateToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            files: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "Array of absolute file paths to concatenate (e.g., ['/Users/username/path/to/file1.ts', '/Users/username/path/to/file2.ts'])"
+            },
+            outputPath: {
+              type: "string",
+              description: "Absolute path where the concatenated file will be saved (e.g., '/Users/username/path/to/output.txt')"
+            }
+          },
+          required: ["files", "outputPath"]
+        },
+      },
     ],
   };
 });
@@ -203,6 +244,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case mermaidStructureToolName: {
       const validated = MermaidStructureToolSchema.parse(args);
       return await runMermaidStructureTool(validated);
+    }
+    case condensateToolName: {
+      const validated = CondensateToolSchema.parse(args);
+      return await runCondensateTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -251,5 +296,11 @@ export const tools = {
     description: mermaidStructureToolDescription,
     schema: MermaidStructureToolSchema,
     func: runMermaidStructureTool,
+  },
+  [condensateToolName]: {
+    name: condensateToolName,
+    description: condensateToolDescription,
+    schema: CondensateToolSchema,
+    func: runCondensateTool,
   },
 };
