@@ -1,10 +1,11 @@
+import fs from "fs";
+import path from "path";
 import puppeteer from "puppeteer";
 import { z } from "zod";
-import path from "path";
-import fs from "fs";
 /**
  * Screenshot tool
  *   - Takes in either "url" (a full URL) or "relativePath" to open on localhost:3000
+ *   - Supports custom viewport sizes through width and height parameters
  *   - Returns a base64-encoded PNG screenshot
  */
 
@@ -16,6 +17,9 @@ export const ScreenshotToolSchema = z.object({
   url: z.string().optional(),
   relativePath: z.string().optional(),
   fullPathToScreenshot: z.string(),
+  width: z.number().optional().default(1920), // Default width 1920px
+  height: z.number().optional().default(1080), // Default height 1080px
+  deviceScaleFactor: z.number().optional().default(1), // Default scale factor 1
 });
 
 export async function runScreenshotTool(
@@ -34,18 +38,26 @@ export async function runScreenshotTool(
   // Launch Puppeteer
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+
+  // Set viewport size
+  await page.setViewport({
+    width: args.width,
+    height: args.height,
+    deviceScaleFactor: args.deviceScaleFactor,
+  });
+
   await page.goto(finalUrl);
   const screenshotBuffer = (await page.screenshot({
     fullPage: true,
   })) as Buffer;
   await browser.close();
   await fs.promises.writeFile(fullPathToScreenshot, screenshotBuffer);
-  // Return the base64 representation
+
   return {
     content: [
       {
         type: "text",
-        text: `Screenshot saved to ${fullPathToScreenshot}. Before continuing, you MUST ask the user to drag and drop the screenshot into the chat window.
+        text: `Screenshot saved to ${fullPathToScreenshot} with viewport size ${args.width}x${args.height} (scale factor: ${args.deviceScaleFactor}). Before continuing, you MUST ask the user to drag and drop the screenshot into the chat window.
         The path to the screenshot is ${fullPathToScreenshot}.`,
       },
     ],
