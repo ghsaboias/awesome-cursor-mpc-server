@@ -1,112 +1,108 @@
-# 🤖 AI Development Assistant MCP Server
+# AI Development Assistant MCP Server
 
-Welcome to your AI-powered development toolkit, designed as a Model Context Protocol (MCP) server for Cursor! This project provides intelligent coding assistance through custom AI tools. Note that this is mostly a tutorial demo, and not a production-ready tool.
+A Model Context Protocol (MCP) server implementation for Cursor IDE, providing programmatic access to AI-powered development tools. This project serves as a reference implementation for custom tool integration.
 
-## ✨ Features
+## Features
 
-### 🎨 Code Architect
+### Code Architecture Analysis
 
-Call advanced reasoning LLMs to generate plans and instructions for coding agents.
+Advanced language model integration for generating architectural plans and implementation instructions.
 
-### 📸 Screenshot Buddy
+### UI Analysis
 
-Take UI design screenshots and use them with the composer agent.
+Automated screenshot capture and analysis capabilities for UI development workflows.
 
-### 🔍 Code Review
+### Code Review
 
-Use git diffs to trigger code reviews.
+Automated code review using git diff analysis.
 
-## 🚀 Getting Started
+### Project Structure Visualization
 
-### 1. Environment Setup
+Two visualization tools for codebase analysis:
 
-First, you'll need to set up your environment variables. Create a file at `src/env/keys.ts`:
+- **Text Tree Generator**: Creates hierarchical text-based representations of project structure
+- **Mermaid Diagram Generator**: Generates flowchart diagrams using Mermaid.js syntax
+
+Both tools implement intelligent filtering to exclude build artifacts, cache files, and development-specific files.
+
+## Setup
+
+### Environment Configuration
+
+Create `src/env/keys.ts`:
 
 ```typescript
 export const OPENAI_API_KEY = "your_key_here";
-// Add any other keys you need
 ```
 
-> ⚠️ **Security Note**: Storing API keys directly in source code is not recommended for production environments. This is only for local development and learning purposes. You can set the env var inline in the Cursor MCP interface as well.
+Note: For production environments, use proper secret management. This implementation is for development purposes only.
 
-### 2. Installation
+### Installation
 
 ```bash
 npm install
-# or
-yarn install
 ```
 
-### 3. Build the Server
+### Build
 
 ```bash
 npm run build
 ```
 
-### 4. Adding to Cursor
+### Cursor Integration
 
-This project is designed to be used as an MCP server in Cursor. Here's how to set it up:
+1. Navigate to `Cursor Settings > Features > MCP`
+2. Add New MCP Server:
+   - Name: AI Development Assistant
+   - Type: stdio
+   - Command: `node /path/to/project/dist/index.js`
 
-1. Open Cursor
-2. Go to `Cursor Settings > Features > MCP`
-3. Click `+ Add New MCP Server`
-4. Fill out the form:
-   - **Name**: AI Development Assistant
-   - **Type**: stdio
-   - **Command**: `node /path/to/your/project/dist/index.js`
+Note: Use absolute paths to the built index.js file.
 
-> 📘 **Pro Tip**: You might need to use the full path to your project's built index.js file.
+For detailed MCP configuration, refer to the [Cursor MCP Documentation](https://docs.cursor.com/advanced/model-context-protocol).
 
-After adding the server, you should see your tools listed under "Available Tools". If not, try clicking the refresh button in the top right corner of the MCP server section.
+## Usage
 
-For more details about MCP setup, check out the [Cursor MCP Documentation](https://docs.cursor.com/advanced/model-context-protocol).
+The tools can be invoked through Cursor's Composer interface. Example commands:
 
-## 🛠️ Using the Tools
+```
+Review code in current file
+Generate architecture plan for new feature
+Analyze UI screenshot
+Generate project structure diagram
+Create codebase flowchart
+```
 
-Once configured, you can use these tools directly in Cursor's Composer. The AI will automatically suggest using relevant tools, or you can explicitly request them by name or description.
-
-For example, try typing in Composer:
-
-- "Review this code for best practices"
-- "Help me architect a new feature"
-- "Analyze this UI screenshot"
-
-The agent will ask for your approval before making any tool calls.
-
-> 📘 **Pro Tip**: You can update your .cursorrules file with instructions on how to use the tools for certain scenarios, and the agent will use the tools automatically.
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
 ├── tools/
-│   ├── architect.ts    # Code structure generator
-│   ├── screenshot.ts   # Screenshot analysis tool
-│   └── codeReview.ts   # Code review tool
+│   ├── architect.ts      # Architecture analysis
+│   ├── screenshot.ts     # UI capture and analysis
+│   ├── codeReview.ts     # Diff-based review
+│   ├── fileStructure.ts  # Tree visualization
+│   └── mermaidStructure.ts # Flowchart generation
 ├── env/
-│   └── keys.ts         # Environment configuration (add your API keys here!)
-└── index.ts           # Main entry point
+│   └── keys.ts          # Environment configuration
+└── index.ts            # Entry point
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions welcome! Please feel free to submit a Pull Request.
+Contributions should follow the existing code style and include appropriate tests.
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - See LICENSE file for details.
 
-## 🐛 Issues & Support
+## Issue Reporting
 
-Found a bug or need help? Open an issue with:
+For bug reports, include:
 
-1. What you were trying to do
-2. What happened instead
-3. Steps to reproduce
-4. Your environment details
+1. Operation attempted
+2. Actual result
+3. Reproduction steps
+4. Environment details
 
----
-
-I'll be honest though, this is a tutorial demo, and not a production-ready tool so I likely won't be fixing issues. But feel free to fork it and make it your own!
-
-Made with ❤️ by developers, for developers
+Note: This is a reference implementation. While issues are tracked, maintenance is limited.
