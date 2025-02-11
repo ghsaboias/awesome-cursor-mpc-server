@@ -6,31 +6,46 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import {
-  screenshotToolName,
-  screenshotToolDescription,
-  ScreenshotToolSchema,
   runScreenshotTool,
+  screenshotToolDescription,
+  screenshotToolName,
+  ScreenshotToolSchema,
 } from "./tools/screenshot.js";
 
 import {
-  architectToolName,
   architectToolDescription,
+  architectToolName,
   ArchitectToolSchema,
   runArchitectTool,
 } from "./tools/architect.js";
 
 import {
-  codeReviewToolName,
   codeReviewToolDescription,
+  codeReviewToolName,
   CodeReviewToolSchema,
   runCodeReviewTool,
 } from "./tools/codeReview.js";
 
+import {
+  fileStructureToolDescription,
+  fileStructureToolName,
+  FileStructureToolSchema,
+  runFileStructureTool,
+} from "./tools/fileStructure.js";
+
+import {
+  mermaidStructureToolDescription,
+  mermaidStructureToolName,
+  MermaidStructureToolSchema,
+  runMermaidStructureTool
+} from "./tools/mermaidStructure.js";
+
 /**
- * A minimal MCP server providing three Cursor Tools:
+ * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
  *   2) Architect
  *   3) CodeReview
+ *   4) FileStructure
  */
 
 // 1. Create an MCP server instance
@@ -106,6 +121,60 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["folderPath"],
         },
       },
+      {
+        name: fileStructureToolName,
+        description: fileStructureToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            directoryPath: {
+              type: "string",
+              description: "Path to the directory to analyze",
+            },
+            maxDepth: {
+              type: "number",
+              description: "Maximum depth to traverse (default: 3)",
+            },
+            excludePatterns: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "Patterns to exclude from the structure (default: ['node_modules', '.git', 'build', 'dist'])",
+            },
+          },
+          required: ["directoryPath"],
+        },
+      },
+      {
+        name: mermaidStructureToolName,
+        description: mermaidStructureToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            directoryPath: {
+              type: "string",
+              description: "Path to directory to analyze (optional, defaults to current directory)",
+            },
+            maxDepth: {
+              type: "number",
+              description: "Maximum depth to traverse (default: 3)",
+            },
+            excludePatterns: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "Patterns to exclude from the structure (default: ['node_modules', '.git', 'build', 'dist'])",
+            },
+            fullPathToOutput: {
+              type: "string",
+              description: "Path where the Mermaid diagram will be saved",
+            }
+          },
+          required: ["fullPathToOutput"],
+        },
+      },
     ],
   };
 });
@@ -127,6 +196,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const validated = CodeReviewToolSchema.parse(args);
       return await runCodeReviewTool(validated);
     }
+    case fileStructureToolName: {
+      const validated = FileStructureToolSchema.parse(args);
+      return await runFileStructureTool(validated);
+    }
+    case mermaidStructureToolName: {
+      const validated = MermaidStructureToolSchema.parse(args);
+      return await runMermaidStructureTool(validated);
+    }
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
@@ -143,3 +220,36 @@ main().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });
+
+export const tools = {
+  [screenshotToolName]: {
+    name: screenshotToolName,
+    description: screenshotToolDescription,
+    schema: ScreenshotToolSchema,
+    func: runScreenshotTool,
+  },
+  [architectToolName]: {
+    name: architectToolName,
+    description: architectToolDescription,
+    schema: ArchitectToolSchema,
+    func: runArchitectTool,
+  },
+  [codeReviewToolName]: {
+    name: codeReviewToolName,
+    description: codeReviewToolDescription,
+    schema: CodeReviewToolSchema,
+    func: runCodeReviewTool,
+  },
+  [fileStructureToolName]: {
+    name: fileStructureToolName,
+    description: fileStructureToolDescription,
+    schema: FileStructureToolSchema,
+    func: runFileStructureTool,
+  },
+  [mermaidStructureToolName]: {
+    name: mermaidStructureToolName,
+    description: mermaidStructureToolDescription,
+    schema: MermaidStructureToolSchema,
+    func: runMermaidStructureTool,
+  },
+};
