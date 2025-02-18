@@ -47,6 +47,12 @@ import {
   runCondensateTool,
 } from "./tools/condensate.js";
 
+import {
+  consoleLogsToolDescription,
+  consoleLogsToolName,
+  ConsoleLogsToolSchema,
+  runConsoleLogsTool,
+} from "./tools/consoleLogs.js";
 
 /**
  * A minimal MCP server providing four Cursor Tools:
@@ -216,6 +222,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["files", "outputPath"]
         },
       },
+      {
+        name: consoleLogsToolName,
+        description: consoleLogsToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            url: {
+              type: "string",
+              description: "Full URL to capture console logs from",
+            },
+            relativePath: {
+              type: "string",
+              description: "Relative path appended to http://localhost:3000",
+            },
+            timeoutMs: {
+              type: "number",
+              description: "Timeout in milliseconds (default: 5000)",
+            },
+            includeNetworkErrors: {
+              type: "boolean",
+              description: "Whether to include network errors in the logs (default: true)",
+            },
+            browserPath: {
+              type: "string",
+              description: "Path to Brave browser executable (optional)",
+            },
+          },
+          required: [],
+        },
+      },
     ],
   };
 });
@@ -248,6 +284,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case condensateToolName: {
       const validated = CondensateToolSchema.parse(args);
       return await runCondensateTool(validated);
+    }
+    case consoleLogsToolName: {
+      const validated = ConsoleLogsToolSchema.parse(args);
+      return await runConsoleLogsTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -302,5 +342,11 @@ export const tools = {
     description: condensateToolDescription,
     schema: CondensateToolSchema,
     func: runCondensateTool,
+  },
+  [consoleLogsToolName]: {
+    name: consoleLogsToolName,
+    description: consoleLogsToolDescription,
+    schema: ConsoleLogsToolSchema,
+    func: runConsoleLogsTool,
   },
 };
