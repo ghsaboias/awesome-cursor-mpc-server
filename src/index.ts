@@ -54,12 +54,23 @@ import {
   runConsoleLogsTool,
 } from "./tools/consoleLogs.js";
 
+import {
+  browserToolDescription,
+  browserToolName,
+  BrowserToolSchema,
+  runBrowserTool,
+} from "./tools/browser.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
  *   2) Architect
  *   3) CodeReview
  *   4) FileStructure
+ *   5) MermaidStructure
+ *   6) Condensate
+ *   7) ConsoleLogs
+ *   8) Browser
  */
 
 // 1. Create an MCP server instance
@@ -252,6 +263,40 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: [],
         },
       },
+      {
+        name: browserToolName,
+        description: browserToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            url: {
+              type: "string",
+              description: "Full URL to visit",
+            },
+            relativePath: {
+              type: "string",
+              description: "Relative path appended to http://localhost:3000",
+            },
+            timeoutMs: {
+              type: "number",
+              description: "Timeout in milliseconds (default: 5000)",
+            },
+            waitForSelector: {
+              type: "string",
+              description: "CSS selector to wait for before extracting content",
+            },
+            extractSelector: {
+              type: "string",
+              description: "CSS selector to extract content from (extracts all visible text if not provided)",
+            },
+            includeMetadata: {
+              type: "boolean",
+              description: "Whether to include page metadata like title and description (default: false)",
+            }
+          },
+          required: [],
+        },
+      },
     ],
   };
 });
@@ -288,6 +333,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case consoleLogsToolName: {
       const validated = ConsoleLogsToolSchema.parse(args);
       return await runConsoleLogsTool(validated);
+    }
+    case browserToolName: {
+      const validated = BrowserToolSchema.parse(args);
+      return await runBrowserTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -348,5 +397,11 @@ export const tools = {
     description: consoleLogsToolDescription,
     schema: ConsoleLogsToolSchema,
     func: runConsoleLogsTool,
+  },
+  [browserToolName]: {
+    name: browserToolName,
+    description: browserToolDescription,
+    schema: BrowserToolSchema,
+    func: runBrowserTool,
   },
 };
