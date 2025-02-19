@@ -292,6 +292,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             includeMetadata: {
               type: "boolean",
               description: "Whether to include page metadata like title and description (default: false)",
+            },
+            getRawHtml: {
+              type: "boolean",
+              description: "Whether to return raw HTML instead of extracted text (default: false)",
+            },
+            maxLength: {
+              type: "number",
+              description: "Maximum length of content in characters before truncation (default: 900000 [900KB])",
+            },
+            contentMode: {
+              type: "string",
+              enum: ["full", "summary", "structured"],
+              description: "Content extraction mode: 'full' (all visible text), 'summary' (headings + first paragraphs), or 'structured' (JSON with organized sections) (default: 'full')",
             }
           },
           required: [],

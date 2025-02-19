@@ -12,7 +12,9 @@ export const BrowserToolSchema = z.object({
     waitForSelector: z.string().optional(),
     extractSelector: z.string().optional(),
     includeMetadata: z.boolean().optional().default(false),
-    getRawHtml: z.boolean().optional().default(false)
+    getRawHtml: z.boolean().optional().default(false),
+    maxLength: z.number().optional().default(900000), // Default to 900KB
+    contentMode: z.enum(['full', 'summary', 'structured']).optional().default('full')
 });
 
 export async function runBrowserTool(
@@ -71,21 +73,22 @@ export async function runBrowserTool(
             await page.waitForSelector(args.waitForSelector, { timeout: args.timeoutMs });
         }
 
-        // If getRawHtml is true, return the raw HTML
+        // If getRawHtml is true, return the raw HTML (truncated if needed)
         if (args.getRawHtml) {
             const html = await page.content();
+            const truncatedHtml = html.slice(0, args.maxLength);
             await browser.close();
             return {
                 content: [
                     {
                         type: "text",
-                        text: html
+                        text: truncatedHtml
                     }
                 ]
             };
         }
 
-        // Extract content
+        // Extract content based on contentMode
         let content = '';
         let metadata = {};
 
@@ -96,24 +99,58 @@ export async function runBrowserTool(
                 content = await page.evaluate(el => el.textContent || '', element);
             }
         } else {
-            // Extract all visible text content
-            content = await page.evaluate(() => {
-                const elements = document.querySelectorAll('body *');
-                return Array.from(elements)
-                    .map(element => {
-                        const style = window.getComputedStyle(element);
-                        const isVisible = style.display !== 'none' &&
-                            style.visibility !== 'hidden' &&
-                            style.opacity !== '0';
-                        if (isVisible) {
-                            return element.textContent || '';
-                        }
-                        return '';
-                    })
-                    .join(' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-            });
+            // Extract content based on contentMode
+            content = await page.evaluate((mode) => {
+                const getVisibleText = (element: Element): boolean => {
+                    const style = window.getComputedStyle(element);
+                    return style.display !== 'none' &&
+                        style.visibility !== 'hidden' &&
+                        style.opacity !== '0';
+                };
+
+                switch (mode) {
+                    case 'summary':
+                        // Get main headings and first paragraph of each section
+                        const headings = Array.from(document.querySelectorAll('h1, h2, h3'));
+                        const mainContent = headings.map(heading => {
+                            let content = heading.textContent || '';
+                            let nextElement = heading.nextElementSibling;
+                            while (nextElement && nextElement.tagName.toLowerCase() !== 'h1' &&
+                                nextElement.tagName.toLowerCase() !== 'h2' &&
+                                nextElement.tagName.toLowerCase() !== 'h3') {
+                                if (nextElement.tagName.toLowerCase() === 'p' && getVisibleText(nextElement)) {
+                                    content += '\n' + (nextElement.textContent || '');
+                                    break;
+                                }
+                                nextElement = nextElement.nextElementSibling;
+                            }
+                            return content;
+                        }).join('\n\n');
+                        return mainContent;
+
+                    case 'structured':
+                        // Return a structured format with sections
+                        const structure = {
+                            title: document.title,
+                            mainHeading: (document.querySelector('h1')?.textContent || '').trim(),
+                            sections: Array.from(document.querySelectorAll('h2, h3')).map(heading => ({
+                                heading: heading.textContent || '',
+                                content: heading.nextElementSibling?.textContent || ''
+                            }))
+                        };
+                        return JSON.stringify(structure, null, 2);
+
+                    case 'full':
+                    default:
+                        // Get all visible text content
+                        return Array.from(document.querySelectorAll('body *'))
+                            .filter(element => getVisibleText(element))
+                            .map(element => element.textContent || '')
+                            .join(' ')
+                            .replace(/\s+/g, ' ')
+                            .trim();
+                }
+            }, args.contentMode);
         }
 
         if (args.includeMetadata) {
@@ -123,6 +160,11 @@ export async function runBrowserTool(
                 url: window.location.href,
                 lastModified: document.lastModified
             }));
+        }
+
+        // Truncate content if it exceeds maxLength
+        if (content.length > args.maxLength) {
+            content = content.slice(0, args.maxLength) + '\n[Content truncated due to length...]';
         }
 
         await browser.close();
