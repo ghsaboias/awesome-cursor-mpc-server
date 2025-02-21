@@ -16,7 +16,7 @@ import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";
 
-export const mermaidStructureToolName = "mermaid-structure";
+export const mermaidStructureToolName = "mermaid_structure";
 export const mermaidStructureToolDescription =
     "Generates a Mermaid diagram showing the file structure of a specified directory.";
 

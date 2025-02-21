@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import { z } from "zod";
 
-export const consoleLogsToolName = "consoleLogs";
+export const consoleLogsToolName = "console_logs";
 export const consoleLogsToolDescription =
     "Capture console logs from a URL or a local path using Brave browser.";
 

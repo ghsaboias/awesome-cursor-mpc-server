@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { execSync } from "child_process";
+import { z } from "zod";
 
 /**
  * CodeReview tool
@@ -7,7 +7,7 @@ import { execSync } from "child_process";
  *   - Returns the diff along with instructions to review and fix issues
  */
 
-export const codeReviewToolName = "code-review";
+export const codeReviewToolName = "code_review";
 export const codeReviewToolDescription =
   "Run a git diff against main on a specified file and provide instructions to review/fix issues.";
 

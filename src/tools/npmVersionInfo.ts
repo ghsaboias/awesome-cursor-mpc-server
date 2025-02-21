@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { z } from "zod";
 
-export const npmVersionToolName = "mcp_npm_version_info";
+export const npmVersionToolName = "npm_version_info";
 export const npmVersionToolDescription = "Returns the latest version of an NPM package. Use it to check for the latest NPM package version when installing new JavaScript dependencies";
 
 export const NpmVersionToolSchema = z.object({

@@ -17,7 +17,7 @@ import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";
 
-export const fileStructureToolName = "file-structure";
+export const fileStructureToolName = "file_structure";
 export const fileStructureToolDescription =
     "Generates a text-based tree diagram showing the file structure of a specified directory.";
 
