@@ -68,6 +68,13 @@ import {
   runNpmVersionTool,
 } from "./tools/npmVersionInfo.js";
 
+import {
+  npmBatchVersionToolDescription,
+  npmBatchVersionToolName,
+  NpmBatchVersionToolSchema,
+  runNpmBatchVersionTool,
+} from "./tools/npmBatchVersionInfo.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -332,6 +339,23 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["package_name"]
         },
       },
+      {
+        name: npmBatchVersionToolName,
+        description: npmBatchVersionToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            package_names: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "List of NPM package names to check versions for"
+            }
+          },
+          required: ["package_names"]
+        },
+      },
     ],
   };
 });
@@ -376,6 +400,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case npmVersionToolName: {
       const validated = NpmVersionToolSchema.parse(args);
       return await runNpmVersionTool(validated);
+    }
+    case npmBatchVersionToolName: {
+      const validated = NpmBatchVersionToolSchema.parse(args);
+      return await runNpmBatchVersionTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -448,5 +476,11 @@ export const tools = {
     description: npmVersionToolDescription,
     schema: NpmVersionToolSchema,
     func: runNpmVersionTool,
+  },
+  [npmBatchVersionToolName]: {
+    name: npmBatchVersionToolName,
+    description: npmBatchVersionToolDescription,
+    schema: NpmBatchVersionToolSchema,
+    func: runNpmBatchVersionTool,
   },
 };
