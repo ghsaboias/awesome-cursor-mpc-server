@@ -61,6 +61,13 @@ import {
   runBrowserTool,
 } from "./tools/browser.js";
 
+import {
+  npmVersionToolDescription,
+  npmVersionToolName,
+  NpmVersionToolSchema,
+  runNpmVersionTool,
+} from "./tools/npmVersionInfo.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -71,6 +78,7 @@ import {
  *   6) Condensate
  *   7) ConsoleLogs
  *   8) Browser
+ *   9) NpmVersion
  */
 
 // 1. Create an MCP server instance
@@ -310,6 +318,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: [],
         },
       },
+      {
+        name: npmVersionToolName,
+        description: npmVersionToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            package_name: {
+              type: "string",
+              description: "NPM package name to check version for"
+            }
+          },
+          required: ["package_name"]
+        },
+      },
     ],
   };
 });
@@ -350,6 +372,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case browserToolName: {
       const validated = BrowserToolSchema.parse(args);
       return await runBrowserTool(validated);
+    }
+    case npmVersionToolName: {
+      const validated = NpmVersionToolSchema.parse(args);
+      return await runNpmVersionTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -416,5 +442,11 @@ export const tools = {
     description: browserToolDescription,
     schema: BrowserToolSchema,
     func: runBrowserTool,
+  },
+  [npmVersionToolName]: {
+    name: npmVersionToolName,
+    description: npmVersionToolDescription,
+    schema: NpmVersionToolSchema,
+    func: runNpmVersionTool,
   },
 };
