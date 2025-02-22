@@ -351,6 +351,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                 type: "string"
               },
               description: "List of NPM package names to check versions for"
+            },
+            current_versions: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "Optional list of current versions corresponding to package_names. If not provided, only latest versions will be shown"
             }
           },
           required: ["package_names"]
