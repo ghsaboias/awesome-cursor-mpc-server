@@ -4,26 +4,27 @@ A Model Context Protocol (MCP) server implementation for Cursor IDE, providing p
 
 ## Features
 
-### Code Architecture Analysis
+### Code Analysis & Development
 
-Advanced language model integration for generating architectural plans and implementation instructions.
+- **Architecture Analysis**: Advanced language model integration for generating architectural plans and implementation instructions
+- **Code Review**: Automated code review using git diff analysis
+- **NPM Version Management**:
+  - Single package version lookup
+  - Batch version comparison for multiple packages
 
-### UI Analysis
+### UI & Browser Tools
 
-Automated screenshot capture and analysis capabilities for UI development workflows.
+- **Screenshot Capture**: Automated screenshot capture for UI development workflows
+- **Browser Content Reader**: Extract and analyze content from web pages
+- **Console Log Capture**: Monitor and analyze browser console output
 
-### Code Review
-
-Automated code review using git diff analysis.
-
-### Project Structure Visualization
-
-Two visualization tools for codebase analysis:
+### Project Structure & Documentation
 
 - **Text Tree Generator**: Creates hierarchical text-based representations of project structure
 - **Mermaid Diagram Generator**: Generates flowchart diagrams using Mermaid.js syntax
+- **File Condensate**: Concatenate multiple files with headers for documentation or analysis
 
-Both tools implement intelligent filtering to exclude build artifacts, cache files, and development-specific files.
+All visualization tools implement intelligent filtering to exclude build artifacts, cache files, and development-specific files.
 
 ## Setup
 
@@ -66,11 +67,21 @@ For detailed MCP configuration, refer to the [Cursor MCP Documentation](https://
 The tools can be invoked through Cursor's Composer interface. Example commands:
 
 ```
+# Code Analysis
 Review code in current file
 Generate architecture plan for new feature
+Check latest version of npm package react
+Compare versions of multiple packages
+
+# UI & Browser
 Analyze UI screenshot
+Capture console logs from localhost:3000
+Extract content from webpage
+
+# Project Structure
 Generate project structure diagram
 Create codebase flowchart
+Combine multiple source files into one
 ```
 
 ## Project Structure
@@ -78,14 +89,19 @@ Create codebase flowchart
 ```
 src/
 ├── tools/
-│   ├── architect.ts      # Architecture analysis
-│   ├── screenshot.ts     # UI capture and analysis
-│   ├── codeReview.ts     # Diff-based review
-│   ├── fileStructure.ts  # Tree visualization
-│   └── mermaidStructure.ts # Flowchart generation
+│   ├── architect.ts        # Architecture analysis
+│   ├── browser.ts         # Web content extraction
+│   ├── codeReview.ts      # Diff-based review
+│   ├── condensate.ts      # File concatenation
+│   ├── consoleLogs.ts     # Browser console capture
+│   ├── fileStructure.ts   # Tree visualization
+│   ├── mermaidStructure.ts # Flowchart generation
+│   ├── npmVersionInfo.ts  # NPM version lookup
+│   ├── npmBatchVersionInfo.ts # NPM batch version check
+│   └── screenshot.ts      # UI capture and analysis
 ├── env/
-│   └── keys.ts          # Environment configuration
-└── index.ts            # Entry point
+│   └── keys.ts           # Environment configuration
+└── index.ts             # Entry point
 ```
 
 ## Contributing
