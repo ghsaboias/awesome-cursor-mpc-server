@@ -18,3 +18,4 @@ logs/
 coverage/
 *.lcov
 src/env/
+.cursorrules

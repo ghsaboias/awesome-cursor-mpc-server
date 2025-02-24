@@ -75,6 +75,13 @@ import {
   runNpmBatchVersionTool,
 } from "./tools/npmBatchVersionInfo.js";
 
+import {
+  runYoutubeTool,
+  youtubeToolDescription,
+  youtubeToolName,
+  YoutubeToolSchema,
+} from "./tools/youtube.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -363,6 +370,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["package_names"]
         },
       },
+      {
+        name: youtubeToolName,
+        description: youtubeToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            action: {
+              type: "string",
+              enum: ["search", "info"],
+              description: "The action to perform: search videos or get video info"
+            },
+            query: {
+              type: "string",
+              description: "Search query for the 'search' action"
+            },
+            videoId: {
+              type: "string",
+              description: "YouTube video ID for 'info' action"
+            },
+            maxResults: {
+              type: "number",
+              description: "Maximum number of results to return for search (default: 5)"
+            }
+          },
+          required: ["action"],
+        },
+      },
     ],
   };
 });
@@ -411,6 +445,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case npmBatchVersionToolName: {
       const validated = NpmBatchVersionToolSchema.parse(args);
       return await runNpmBatchVersionTool(validated);
+    }
+    case youtubeToolName: {
+      return await runYoutubeTool(YoutubeToolSchema.parse(args));
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -489,5 +526,11 @@ export const tools = {
     description: npmBatchVersionToolDescription,
     schema: NpmBatchVersionToolSchema,
     func: runNpmBatchVersionTool,
+  },
+  [youtubeToolName]: {
+    name: youtubeToolName,
+    description: youtubeToolDescription,
+    schema: YoutubeToolSchema,
+    func: runYoutubeTool,
   },
 };
