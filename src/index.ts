@@ -82,6 +82,13 @@ import {
   YoutubeToolSchema,
 } from "./tools/youtube.js";
 
+import {
+  runShellTerminalTool,
+  shellTerminalToolDescription,
+  shellTerminalToolName,
+  ShellTerminalToolSchema,
+} from "./tools/shellTerminal.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -397,6 +404,32 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["action"],
         },
       },
+      {
+        name: shellTerminalToolName,
+        description: shellTerminalToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            command: {
+              type: "string",
+              description: "The shell command to execute",
+            },
+            sshTarget: {
+              type: "string",
+              description: "SSH target in format user@host. If provided, command will be executed remotely",
+            },
+            timeoutMs: {
+              type: "number",
+              description: "Command timeout in milliseconds",
+            },
+            workingDir: {
+              type: "string",
+              description: "Working directory for command execution",
+            },
+          },
+          required: ["command"],
+        },
+      },
     ],
   };
 });
@@ -448,6 +481,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     case youtubeToolName: {
       return await runYoutubeTool(YoutubeToolSchema.parse(args));
+    }
+    case shellTerminalToolName: {
+      const validated = ShellTerminalToolSchema.parse(args);
+      return await runShellTerminalTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -532,5 +569,11 @@ export const tools = {
     description: youtubeToolDescription,
     schema: YoutubeToolSchema,
     func: runYoutubeTool,
+  },
+  [shellTerminalToolName]: {
+    name: shellTerminalToolName,
+    description: shellTerminalToolDescription,
+    schema: ShellTerminalToolSchema,
+    func: runShellTerminalTool,
   },
 };
