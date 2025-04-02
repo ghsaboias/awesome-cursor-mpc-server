@@ -89,6 +89,13 @@ import {
   ShellTerminalToolSchema,
 } from "./tools/shellTerminal.js";
 
+import {
+  pdfToJsonToCsvToolDescription,
+  pdfToJsonToCsvToolName,
+  PdfToJsonToCsvToolSchema,
+  runPdfToJsonToCsvTool,
+} from "./tools/pdfToJsonToCsv.js";
+
 /**
  * A minimal MCP server providing four Cursor Tools:
  *   1) Screenshot
@@ -100,6 +107,7 @@ import {
  *   7) ConsoleLogs
  *   8) Browser
  *   9) NpmVersion
+ *   10) PdfToJsonToCsv
  */
 
 // 1. Create an MCP server instance
@@ -430,6 +438,31 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["command"],
         },
       },
+      {
+        name: pdfToJsonToCsvToolName,
+        description: pdfToJsonToCsvToolDescription,
+        inputSchema: {
+          type: "object",
+          properties: {
+            pdfFilePath: {
+              type: "string",
+              description: "Path to the PDF file",
+            },
+            targetPages: {
+              type: "array",
+              items: {
+                type: "number"
+              },
+              description: "Specific pages to extract (1-based indexing). If not provided, all pages will be processed",
+            },
+            includeHeaders: {
+              type: "boolean",
+              description: "Whether to include the first row as headers (default: true)",
+            },
+          },
+          required: ["pdfFilePath"],
+        },
+      },
     ],
   };
 });
@@ -485,6 +518,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case shellTerminalToolName: {
       const validated = ShellTerminalToolSchema.parse(args);
       return await runShellTerminalTool(validated);
+    }
+    case pdfToJsonToCsvToolName: {
+      const validated = PdfToJsonToCsvToolSchema.parse(args);
+      return await runPdfToJsonToCsvTool(validated);
     }
     default:
       throw new Error(`Unknown tool: ${name}`);
@@ -575,5 +612,11 @@ export const tools = {
     description: shellTerminalToolDescription,
     schema: ShellTerminalToolSchema,
     func: runShellTerminalTool,
+  },
+  [pdfToJsonToCsvToolName]: {
+    name: pdfToJsonToCsvToolName,
+    description: pdfToJsonToCsvToolDescription,
+    schema: PdfToJsonToCsvToolSchema,
+    func: runPdfToJsonToCsvTool,
   },
 };

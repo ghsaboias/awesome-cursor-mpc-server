@@ -14,7 +14,9 @@
     "@modelcontextprotocol/sdk": "^1.4.1",
     "node-fetch": "^3.3.2",
     "openai": "^4.82.0",
-    "puppeteer": "^24.1.1",
+    "pdf-parse": "^1.1.1",
+    "pdf2json": "^3.1.5",
+    "puppeteer": "^24.4.0",
     "semver": "^7.7.1",
     "youtube-mcp-server": "github:ZubeidHendricks/youtube-mcp-server",
     "zod": "^3.24.1"
